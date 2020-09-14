@@ -23,7 +23,7 @@ server.get("/notes", function (req, res) {
 });
 //This is thae path to show the json files inside of db.json
 server.get("/api/notes", (req, res) => {
-  fs.readFile("../db/db.json", "utf8", function (error, data) {
+  fs.readFile("public/assets/db/db.json", "utf8", function (error, data) {
     if (error) {
       console.log("There has been an error reading the json: ", error);
     } else {
@@ -35,19 +35,36 @@ server.get("/api/notes", (req, res) => {
 //this is my post request
 server.post("/api/notes", function (req, res) {
   try {
-    const savedNotes = JSON.parse(fs.readFileSync("../db/db.json", "utf8"));
+    const savedNotes = JSON.parse(
+      fs.readFileSync("public/assets/db/db.json", "utf8")
+    );
     const postNote = req.body;
     const uniqueID = savedNotes.length.toString();
     postNote.id = uniqueID;
     savedNotes.push(postNote);
-    fs.writeFileSync("../db/db.json", JSON.stringify(savedNotes));
+    fs.writeFileSync("public/assets/db/db.json", JSON.stringify(savedNotes));
     console.log("Note saved to db.json. Content: ", postNote);
     res.json(savedNotes);
   }catch(err){
     return `This is your error: ${err}`
   }
 });
-
+//Here is where I delete my note
+server.delete("/api/notes/:id", function (req, res) {
+  let savedNotes = JSON.parse(fs.readFileSync("public/assets/db/db.json", "utf8"));
+  let noteID = req.params.id;
+  let newID = 0;
+  console.log(`Note ID: ${noteID} has been deleted`);
+  savedNotes = savedNotes.filter((currNote) => {
+    return currNote.id != noteID;
+  });
+  for (currNote of savedNotes) {
+    currNote.id = newID.toString();
+    newID++;
+  }
+  fs.writeFileSync("public/assets/db/db.json", JSON.stringify(savedNotes));
+  res.json(savedNotes);
+});
 //This is my default page 
 server.get("*", function (req, res) {
   res.sendFile(__dirname + '/public/assets/index.html');
