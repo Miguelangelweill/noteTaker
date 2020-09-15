@@ -3,7 +3,7 @@ const express = require("express");
 const fs = require("fs");
 const { get } = require("http");
 const server = express();
-const PORT_SERVER = process.env.PORT_SERVER|| 710;
+const PORT_SERVER = process.env.PORT || 710;
 const path = require("path");
 
 server.use(express.urlencoded({ extended: true }));
@@ -65,7 +65,10 @@ server.delete("/api/notes/:id", function (req, res) {
   fs.writeFileSync("public/assets/db/db.json", JSON.stringify(savedNotes));
   res.json(savedNotes);
 });
-//This is my default page 
+//This is my default page
+server.get("/", function (req, res) {
+  res.sendFile(__dirname + "/public/assets/index.html");
+}); 
 server.get("*", function (req, res) {
   res.sendFile(__dirname + '/public/assets/index.html');
 });
